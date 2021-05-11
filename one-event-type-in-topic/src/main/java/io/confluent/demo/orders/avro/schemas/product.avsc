@@ -1,0 +1,11 @@
+{
+ "type": "record",
+ "namespace": "io.confluent.demo.pojo.avro",
+ "name": "Product",
+
+ "fields": [
+     {"name": "product_id", "type": "long"},
+     {"name": "product_name", "type": "string"},
+     {"name": "product_price", "type": "double"}
+ ]
+}

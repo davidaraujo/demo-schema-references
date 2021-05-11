@@ -1,0 +1,12 @@
+{
+ "type": "record",
+ "namespace": "io.confluent.demo.pojo.avro",
+ "name": "Customer",
+
+ "fields": [
+     {"name": "customer_id", "type": "long"},
+     {"name": "customer_name", "type": "string"},
+     {"name": "customer_email", "type": "string"},
+     {"name": "customer_address", "type": "string"}
+ ]
+}

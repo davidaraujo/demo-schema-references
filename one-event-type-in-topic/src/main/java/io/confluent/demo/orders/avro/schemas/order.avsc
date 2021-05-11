@@ -1,0 +1,28 @@
+{
+ "type": "record",
+ "namespace": "io.confluent.demo.pojo.avro",
+ "name": "Order",
+ "fields": [
+     {"name": "order_id", "type": "long", "doc": "The id of the order."},
+     {"name": "order_date", "type": "long", "logicalType": "date"},
+     {"name": "order_amount", "type": "double"},
+     {
+        "name": "products",
+        "type": {
+            "type": "array",
+            "items": {
+                "name": "product",
+                "type": "io.confluent.demo.pojo.avro.Product"
+            }
+        }
+     },
+     {
+        "name": "customer",
+        "type": "io.confluent.demo.pojo.avro.Customer"
+     },
+     {
+        "name": "payment_method",
+        "type": "io.confluent.demo.pojo.avro.Payment"
+     }
+ ]
+}
