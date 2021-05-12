@@ -1,0 +1,10 @@
+GET https://psrc-4xgzx.us-east-2.aws.confluent.cloud/subjects/flights-value/versions/1 --header 'Authorization: Basic NENYUlUzVEtXTkxaTkRGQzpaWkd1amk3SGE5cnpZS3BDdUpCMncwSGhkYmNraFE5VmJvK0dyNFFkVmRiVHVzVDVCclVwc1pVN1Yyd2dpSVJs'
+
+
+
+
+%%%
+# GET
+# GET https://psrc-4xgzx.us-east-2.aws.confluent.cloud/subjects/flights-value/versions/1 --header 'Authorization: Basic NENYUlUzVEtXTkxaTkRGQzpaWkd1amk3SGE5cnpZS3BDdUpCMncwSGhkYmNraFE5VmJvK0dyNFFkVmRiVHVzVDVCclVwc1pVN1Yyd2dpSVJs'
+
+# Error: java.lang.IllegalArgumentException: Expected URL scheme 'http' or 'https' but no colon was found
