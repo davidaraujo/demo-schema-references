@@ -1,15 +1,85 @@
 
-Bank account multiple event types in same topic with schema references demo
+Multiple event types in the same topic with schema references and TopicNameStrategy
 ================
 
+#Scenario description
+Operations on a customer bank account represented as a time-ordered sequence of events, where the messages that contain those events have different data structures/schemas.
 
-Avro
-----------
----
+The events to keep track are:
+* New customer account creation event
+* Making a deposit event
+* Withdrawal of money event
 
-Create POJOs for a schema with references:
--------------
-pom.xml:
+These operations represent a chain of events on a customer account that belong together and should be keeped in order on a Kafka topic.
+
+![Alt text](multiple_events_same_topic.png?raw=true "Title")
+
+#Setup and build
+
+##Schemas
+
+###Bank account schema (main)
+```json
+{
+ "type": "record",
+ "namespace": "io.confluent.demo.bankaccount.avro.pojo",
+ "name": "BankAccount",
+ "fields": [
+   {
+     "name": "oneof_type",
+     "type": [
+       "io.confluent.demo.bankaccount.avro.pojo.NewAccount",
+       "io.confluent.demo.bankaccount.avro.pojo.Deposit",
+       "io.confluent.demo.bankaccount.avro.pojo.Withdrawal"
+    ]
+   }
+ ]
+ }
+```
+###New account schema (reference)
+```json
+{
+  "type": "record",
+  "namespace": "io.confluent.demo.bankaccount.avro.pojo",
+  "name": "NewAccount",
+  "fields": [
+    {"name": "account_id", "type": "long"},
+    {"name": "customer_name", "type": "string"},
+    {"name": "customer_email", "type": "string"},
+    {"name": "customer_address", "type": "string"},
+    {"name": "account_creation_date", "type": "long", "logicalType": "date"}
+  ]
+}
+```
+###Deposit schema (reference)
+```json
+{
+  "type": "record",
+  "namespace": "io.confluent.demo.bankaccount.avro.pojo",
+  "name": "Deposit",
+  "fields": [
+    {"name": "account_id", "type": "long"},
+    {"name": "amount", "type": "double"},
+    {"name": "deposit_date", "type": "long", "logicalType": "date"}
+  ]
+}
+```
+###Withdrawal schema (reference)
+```json
+{
+  "type": "record",
+  "namespace": "io.confluent.demo.bankaccount.avro.pojo",
+  "name": "Withdrawal",
+  "fields": [
+    {"name": "account_id", "type": "long"},
+    {"name": "amount", "type": "double"},
+    {"name": "withdrawal_date", "type": "long", "logicalType": "date"}
+  ]
+}
+```
+
+##Generate POJOs 
+Avro plugin on the pom.xml:
 ```xml
 <plugin>
     <groupId>org.apache.avro</groupId>
@@ -34,14 +104,13 @@ pom.xml:
     </executions>
 </plugin>
 ```
-Run:
+Run to generate sources:
 ```
 mvn generate-sources
 ```
 
-Register a schema with references using the Schema Registry maven plugin:
--------------
-pom.xml:
+##Register schemas
+Confluent Schema registry plugin on the pom.xml:
 ```xml
 <plugin>
     <groupId>io.confluent</groupId>
@@ -87,7 +156,7 @@ pom.xml:
     </configuration>
 </plugin>
 ```
-Run:
+Run to register:
 ```
 mvn schema-registry:register
 ```
@@ -109,28 +178,41 @@ Output:
 [INFO] ------------------------------------------------------------------------
 ```
 
-Run apps with schema references
------
-New Account Producer :
+## Build
+Run to compile:
+```
+mvn compile
+```
+
+#Run applications
+
+##Run the new account application
 ```bash
 mvn exec:java -Dexec.mainClass="io.confluent.demo.bankaccount.avro.producer.NewAccountService" -Dexec.args="./src/main/resources ccloud_prod_catalog.properties customer.bankaccount.avro NewAccountService.avro"
 ```
-Deposit Producer :
+
+##Run the deposit application
 ```bash
 mvn exec:java -Dexec.mainClass="io.confluent.demo.bankaccount.avro.producer.DepositService" -Dexec.args="./src/main/resources ccloud_prod_catalog.properties customer.bankaccount.avro DepositService.avro"
 ```
-Withdrawal Producer :
+
+##Run the withdrawal application
 ```bash
 mvn exec:java -Dexec.mainClass="io.confluent.demo.bankaccount.avro.producer.WithdrawalService" -Dexec.args="./src/main/resources ccloud_prod_catalog.properties customer.bankaccount.avro WithdrawalService.avro"
 ```
-Random Producer :
-```bash
-mvn exec:java -Dexec.mainClass="io.confluent.demo.bankaccount.avro.producer.RandomService" -Dexec.args="./src/main/resources ccloud_prod_catalog.properties customer.bankaccount.avro RandomService.avro"
-```
 
-
-Consumer:
+##Run the consumer application (reading 3 different event types from same topic)
 ```bash
 mvn exec:java -Dexec.mainClass="io.confluent.demo.bankaccount.avro.consumer.GenericAvroConsumerService" -Dexec.args="./src/main/resources ccloud_prod_catalog.properties customer.bankaccount.avro BalanceService.avro"
 ```
 
+##Run the random application
+```bash
+mvn exec:java -Dexec.mainClass="io.confluent.demo.bankaccount.avro.producer.RandomService" -Dexec.args="./src/main/resources ccloud_prod_catalog.properties customer.bankaccount.avro RandomService.avro"
+```
+
+#Read more
+[Putting Several Event Types in the Same Topic – Revisited](https://www.confluent.io/blog/multiple-event-types-in-the-same-kafka-topic/)
+
+# License
+This project is licensed under the [Apache 2.0 License](./LICENSE).
