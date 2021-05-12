@@ -1,8 +1,7 @@
 
-Multiple event types in the same topic with schema references and TopicNameStrategy
-================
+#Multiple event types in the same topic with schema references and TopicNameStrategy
 
-#Scenario description
+##Scenario description
 Operations on a customer bank account represented as a time-ordered sequence of events, where the messages that contain those events have different data structures/schemas.
 
 The events to keep track are:
@@ -14,11 +13,11 @@ These operations represent a chain of events on a customer account that belong t
 
 ![Alt text](multiple_events_same_topic.png?raw=true "Title")
 
-#Setup and build
+##Setup and build
 
-##Schemas
+###Schemas
 
-###Bank account schema (main)
+####Bank account schema (main)
 ```json
 {
  "type": "record",
@@ -36,7 +35,7 @@ These operations represent a chain of events on a customer account that belong t
  ]
  }
 ```
-###New account schema (reference)
+####New account schema (reference)
 ```json
 {
   "type": "record",
@@ -51,7 +50,7 @@ These operations represent a chain of events on a customer account that belong t
   ]
 }
 ```
-###Deposit schema (reference)
+####Deposit schema (reference)
 ```json
 {
   "type": "record",
@@ -64,7 +63,7 @@ These operations represent a chain of events on a customer account that belong t
   ]
 }
 ```
-###Withdrawal schema (reference)
+####Withdrawal schema (reference)
 ```json
 {
   "type": "record",
@@ -78,7 +77,7 @@ These operations represent a chain of events on a customer account that belong t
 }
 ```
 
-##Generate POJOs 
+###Generate POJOs 
 Avro plugin on the pom.xml:
 ```xml
 <plugin>
@@ -109,7 +108,7 @@ Run to generate sources:
 mvn generate-sources
 ```
 
-##Register schemas
+###Register schemas
 Confluent Schema registry plugin on the pom.xml:
 ```xml
 <plugin>
@@ -178,41 +177,41 @@ Output:
 [INFO] ------------------------------------------------------------------------
 ```
 
-## Build
+### Build
 Run to compile:
 ```
 mvn compile
 ```
 
-#Run applications
+##Run applications
 
-##Run the new account application
+###Run the new account application
 ```bash
 mvn exec:java -Dexec.mainClass="io.confluent.demo.bankaccount.avro.producer.NewAccountService" -Dexec.args="./src/main/resources ccloud_prod_catalog.properties customer.bankaccount.avro NewAccountService.avro"
 ```
 
-##Run the deposit application
+###Run the deposit application
 ```bash
 mvn exec:java -Dexec.mainClass="io.confluent.demo.bankaccount.avro.producer.DepositService" -Dexec.args="./src/main/resources ccloud_prod_catalog.properties customer.bankaccount.avro DepositService.avro"
 ```
 
-##Run the withdrawal application
+###Run the withdrawal application
 ```bash
 mvn exec:java -Dexec.mainClass="io.confluent.demo.bankaccount.avro.producer.WithdrawalService" -Dexec.args="./src/main/resources ccloud_prod_catalog.properties customer.bankaccount.avro WithdrawalService.avro"
 ```
 
-##Run the consumer application (reading 3 different event types from same topic)
+###Run the consumer application (reading 3 different event types from same topic)
 ```bash
 mvn exec:java -Dexec.mainClass="io.confluent.demo.bankaccount.avro.consumer.GenericAvroConsumerService" -Dexec.args="./src/main/resources ccloud_prod_catalog.properties customer.bankaccount.avro BalanceService.avro"
 ```
 
-##Run the random application
+###Run the random application
 ```bash
 mvn exec:java -Dexec.mainClass="io.confluent.demo.bankaccount.avro.producer.RandomService" -Dexec.args="./src/main/resources ccloud_prod_catalog.properties customer.bankaccount.avro RandomService.avro"
 ```
 
-#Read more
+##Read more
 [Putting Several Event Types in the Same Topic – Revisited](https://www.confluent.io/blog/multiple-event-types-in-the-same-kafka-topic/)
 
-# License
+## License
 This project is licensed under the [Apache 2.0 License](./LICENSE).
