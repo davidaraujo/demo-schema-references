@@ -1,6 +1,6 @@
 {
  "type": "record",
- "namespace": "io.confluent.demo.pojo.avro",
+ "namespace": "io.confluent.demo.orders.avro.pojo",
  "name": "Order",
  "fields": [
      {"name": "order_id", "type": "long", "doc": "The id of the order."},
@@ -12,17 +12,17 @@
             "type": "array",
             "items": {
                 "name": "product",
-                "type": "io.confluent.demo.pojo.avro.Product"
+                "type": "io.confluent.demo.orders.avro.pojo.Product"
             }
         }
      },
      {
         "name": "customer",
-        "type": "io.confluent.demo.pojo.avro.Customer"
+        "type": "io.confluent.demo.orders.avro.pojo.Customer"
      },
      {
         "name": "payment_method",
-        "type": "io.confluent.demo.pojo.avro.Payment"
+        "type": "io.confluent.demo.orders.avro.pojo.Payment"
      }
  ]
 }

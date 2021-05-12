@@ -1,8 +1,6 @@
 {
  "type": "record",
-
-
- "namespace": "io.confluent.demo.pojo.avro",
+ "namespace": "io.confluent.demo.orders.avro.pojo",
  "name": "Payment",
  "fields": [
      {"name": "payment_method_code", "type": "int"},

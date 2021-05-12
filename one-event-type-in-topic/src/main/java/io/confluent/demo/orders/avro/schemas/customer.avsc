@@ -1,6 +1,6 @@
 {
  "type": "record",
- "namespace": "io.confluent.demo.pojo.avro",
+ "namespace": "io.confluent.demo.orders.avro.pojo",
  "name": "Customer",
 
  "fields": [

@@ -1,4 +1,4 @@
-package io.confluent.demo.aircraft.utils;
+package io.confluent.demo.orders.utils;
 
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -24,19 +24,16 @@ public class ClientsUtils {
         return cfg;
     }
 
-    public static void createTopic(final String topic,
-                                   final int partitions,
-                                   final int replication,
-                                   final Properties cloudConfig) {
-        final NewTopic newTopic = new NewTopic(topic, partitions, (short) replication);
-        try (final AdminClient adminClient = AdminClient.create(cloudConfig)) {
+    public static void createTopic(Properties props, String topicName) throws ExecutionException, InterruptedException {
 
+        AdminClient adminClient = AdminClient.create(props);
+        boolean topicExists = adminClient.listTopics().names().get().contains(topicName);
+
+        if (!topicExists) {
+            int partitions = new Integer(props.getProperty("num.partitions"));
+            int replication = new Integer(props.getProperty("replication.factor"));
+            NewTopic newTopic = new NewTopic(topicName, partitions, (short) replication);
             adminClient.createTopics(Collections.singletonList(newTopic)).all().get();
-        } catch (final InterruptedException | ExecutionException e) {
-            // Ignore if TopicExistsException, which may be valid if topic exists
-            if (!(e.getCause() instanceof TopicExistsException)) {
-                throw new RuntimeException(e);
-            }
         }
     }
 

@@ -14,36 +14,31 @@
  * limitations under the License.
  */
 
-package io.confluent.demo.aircraft.avro.producer;
+package io.confluent.demo.orders.avro.producer;
 
-import io.confluent.demo.aircraft.avro.pojo.AircraftState;
-import io.confluent.demo.aircraft.utils.*;
+import io.confluent.demo.orders.avro.pojo.Order;
+import io.confluent.demo.orders.utils.ClientsUtils;
+import io.confluent.demo.orders.utils.ColouredSystemOutPrintln;
+import io.confluent.demo.orders.utils.PrettyPrint;
 import org.apache.kafka.clients.producer.*;
-import org.opensky.model.StateVector;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
-public class TrackingService implements Runnable {
+public class OrderService implements Runnable {
 
     private final String resourcesDir;
     private final String confluentPropsFile;
-    private final String openSkyPropsFile;
     private final String topicName;
     private final String clientId;
-    private boolean doStop = false;
 
-    public TrackingService(String resourcesDir,
-                           String confluentPropsFile,
-                           String openSkyPropsFile,
-                           String topicName,
-                           String clientId) {
+    public OrderService(String resourcesDir,
+                        String confluentPropsFile,
+                        String topicName,
+                        String clientId) {
         this.resourcesDir = resourcesDir;
         this.confluentPropsFile = confluentPropsFile;
-        this.openSkyPropsFile = openSkyPropsFile;
         this.topicName = topicName;
         this.clientId = clientId;
     }
@@ -54,8 +49,6 @@ public class TrackingService implements Runnable {
         // ----------------------------- Load properties -----------------------------
         // Kafka and Schema Registry properties
         final Properties props = ClientsUtils.loadConfig(resourcesDir + "/" + confluentPropsFile);
-        // OpenSky credentials
-        final Properties openSkyProps = ClientsUtils.loadConfig(resourcesDir + "/" + openSkyPropsFile);
 
         // ----------------------------- Set producer properties -----------------------------
         // Assign a client id to the producer
@@ -63,8 +56,11 @@ public class TrackingService implements Runnable {
             props.put(ProducerConfig.CLIENT_ID_CONFIG, clientId);
         // Set the subject naming strategy to use
         //props.setProperty("value.subject.name.strategy", RecordNameStrategy.class.getName());
-        // Auto register the schema
-        props.setProperty("auto.register.schemas", "true");
+
+        // If we auto register a schema with references it will expand the references
+        // within the main schema and not use references. As a result the registering of
+        // schema references should be performed via the SR API or SR maven plugin
+        props.setProperty("auto.register.schemas", "false");
         // Key serializer - String
         props.setProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         // Value serializer - KafkaAvroSerializer
@@ -72,28 +68,22 @@ public class TrackingService implements Runnable {
 
         // ----------------------------- Create Kafka topic and producer -----------------------------
         // topic creation (if it doesn't exist)
-        TopicAdmin.createTopic(props, topicName);
+        ClientsUtils.createTopic(props, topicName);
         // producer creation
         Producer<String, Object> producer = new KafkaProducer<>(props);
 
-        // ----------------------------- Connect to OpenSKY network API to get real-time aircraft location -----------------------------
-        OpenSkyNetwork openSky = new OpenSkyNetwork(openSkyProps);
-        openSky.connect();
-        Collection states = openSky.getAircraftLocation();
-        Iterator aircraftEvents = states.iterator();
-
         // ----------------------------- Produce aircraft location events to Kafka -----------------------------
-        while (aircraftEvents.hasNext()) {
+        while (true) {
             try {
-                AircraftState value = AircraftEvent.create((StateVector) aircraftEvents.next());
-                String key = value.getCallsign() == null ? "" : value.getCallsign().toString();
+                Order value = OrderEvent.getOrder();
+                String key = ""+value.getOrderId();
                 producer.send(new ProducerRecord<>(topicName, key, value), new Callback() {
                     @Override
                     public void onCompletion(RecordMetadata m, Exception e) {
                         if (e != null) {
                             e.printStackTrace();
                         } else {
-                            PrettyPrint.producerRecord(((clientId == null)) ? "Unidentified": clientId, topicName, m.partition(), m.offset(), key.toString(), value.toString(), "avro");
+                            PrettyPrint.producerRecord(((clientId == null)) ? "Unidentified": clientId, topicName, m.partition(), m.offset(), key.toString(), value.toString(), "blue");
                         }
                     }
                 });
@@ -104,8 +94,6 @@ public class TrackingService implements Runnable {
                     ex.printStackTrace();
                 }
             } catch (Exception ex) {
-                // NOTE: some records are failing because fields are coming null, e.g. squawk field, and the Avro schema is not setup with null union for those
-                // this is expected to showcase clients failing on serialization from incorrect data
                 System.out.println(ColouredSystemOutPrintln.ANSI_BLACK + ColouredSystemOutPrintln.ANSI_BG_RED);
                 //System.out.println(ex.toString());
                 System.out.println(ex.getCause().getCause());
@@ -121,42 +109,35 @@ public class TrackingService implements Runnable {
 
         int numArgs = args.length;
         if (numArgs < 3) {
-            System.out.println("Please provide command line arguments: resourcesDir kafkaPropertiesFile openSkyPropertiesFile topicName clientID(optional) numberThreads(optional)");
+            System.out.println("Please provide command line arguments: resourcesDir kafkaPropertiesFile topicName clientID(optional) numberThreads(optional)");
             System.exit(1);
         }
         String resourcesDir = args[0];
         String confluentPropsFile = args[1];
-        String openSkyPropsFile = args[2];
-        String topicName = args[3];
+        String topicName = args[2];
 
         // clientId is optional
-        String clientId = ((numArgs >= 5)) ? args[4] : null;
+        String clientId = ((numArgs >= 4)) ? args[3] : null;
 
         // numberThreads is optional
-        int numberThreads = ((numArgs == 6)) ? Integer.parseInt(args[5]) : 0;
+        int numberThreads = ((numArgs == 5)) ? Integer.parseInt(args[4]) : 0;
 
-        TrackingService airspaceInformation = null;
+        OrderService order = null;
         // run one producer thread
         if (numberThreads == 0) {
-            airspaceInformation = new TrackingService(resourcesDir, confluentPropsFile, openSkyPropsFile, topicName, clientId);
-            new Thread(airspaceInformation).start();
+            order = new OrderService(resourcesDir, confluentPropsFile, topicName, clientId);
+            new Thread(order).start();
         }
         // run multiple producer threads
         else for (int i = 0; i < numberThreads; i++) {
-            airspaceInformation = new TrackingService(resourcesDir, confluentPropsFile, openSkyPropsFile, topicName, clientId + "." + i);
-            new Thread(airspaceInformation).start();
+            order = new OrderService(resourcesDir, confluentPropsFile, topicName, clientId + "." + i);
+            new Thread(order).start();
         }
-
         try {
             Thread.sleep(10L * 1000L);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        airspaceInformation.doStop();
-    }
-
-    public synchronized void doStop() {
-        this.doStop = true;
     }
 
     @Override

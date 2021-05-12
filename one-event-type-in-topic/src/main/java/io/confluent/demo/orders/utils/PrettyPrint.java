@@ -1,4 +1,4 @@
-package io.confluent.demo.aircraft.utils;
+package io.confluent.demo.orders.utils;
 
 import org.json.JSONObject;
 
@@ -17,7 +17,7 @@ public class PrettyPrint {
         System.out.print("\n" + ColouredSystemOutPrintln.ANSI_WHITE + ColouredSystemOutPrintln.ANSI_BG_BLUE);
         System.out.println(ColouredSystemOutPrintln.ANSI_BRIGHT_PURPLE + "key = " +  ColouredSystemOutPrintln.ANSI_WHITE  + key);
 
-        if (formatType.equals("avro")) {
+        if (formatType.equals("blue")) {
             JSONObject json = new JSONObject(value);
             System.out.print(ColouredSystemOutPrintln.ANSI_BRIGHT_PURPLE + "value = " + ColouredSystemOutPrintln.ANSI_WHITE  + json.toString(8));
         }

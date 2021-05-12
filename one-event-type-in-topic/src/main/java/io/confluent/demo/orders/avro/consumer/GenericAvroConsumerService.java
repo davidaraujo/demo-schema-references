@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package io.confluent.demo.aircraft.avro.consumer;
+package io.confluent.demo.orders.avro.consumer;
 
-import io.confluent.demo.aircraft.utils.ClientsUtils;
-import io.confluent.demo.aircraft.utils.PrettyPrint;
+import io.confluent.demo.orders.utils.ClientsUtils;
+import io.confluent.demo.orders.utils.PrettyPrint;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.consumer.*;
 
