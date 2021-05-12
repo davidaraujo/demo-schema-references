@@ -16,6 +16,8 @@
 
 package io.confluent.demo.bankaccount.avro.producer;
 
+import io.confluent.demo.bankaccount.avro.pojo.BankAccount;
+import io.confluent.demo.bankaccount.avro.pojo.NewAccount;
 import io.confluent.demo.bankaccount.avro.pojo.Withdrawal;
 import io.confluent.demo.bankaccount.utils.ClientsUtils;
 import io.confluent.demo.bankaccount.utils.ColouredSystemOutPrintln;
@@ -56,11 +58,13 @@ public class WithdrawalService implements Runnable {
             props.put(ProducerConfig.CLIENT_ID_CONFIG, clientId);
         // Set the subject naming strategy to use
         //props.setProperty("value.subject.name.strategy", RecordNameStrategy.class.getName());
-
         // If we auto register a schema with references it will expand the references
         // within the main schema and not use references. As a result the registering of
         // schema references should be performed via the SR API or SR maven plugin
         props.setProperty("auto.register.schemas", "false");
+        // look up the latest schema version in the subject - this is needed for
+        // schemas references in Topic name strategy to work
+        props.setProperty("use.latest.version","true");
         // Key serializer - String
         props.setProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         // Value serializer - KafkaAvroSerializer
@@ -75,8 +79,10 @@ public class WithdrawalService implements Runnable {
         // ----------------------------- Produce events to Kafka -----------------------------
         while (true) {
             try {
-                Withdrawal value = WithdrawalEvent.getWithdrawal();
-                String key = ""+value.getAccountId();
+                Withdrawal withdrawal = WithdrawalEvent.getWithdrawal();
+                BankAccount value = new BankAccount();
+                value.setOneofType(withdrawal);
+                String key = ""+withdrawal.getAccountId();
                 producer.send(new ProducerRecord<>(topicName, key, value), new Callback() {
                     @Override
                     public void onCompletion(RecordMetadata m, Exception e) {

@@ -16,6 +16,7 @@
 
 package io.confluent.demo.bankaccount.avro.producer;
 
+import io.confluent.demo.bankaccount.avro.pojo.BankAccount;
 import io.confluent.demo.bankaccount.avro.pojo.Deposit;
 import io.confluent.demo.bankaccount.utils.ClientsUtils;
 import io.confluent.demo.bankaccount.utils.ColouredSystemOutPrintln;
@@ -61,6 +62,9 @@ public class DepositService implements Runnable {
         // within the main schema and not use references. As a result the registering of
         // schema references should be performed via the SR API or SR maven plugin
         props.setProperty("auto.register.schemas", "false");
+        // look up the latest schema version in the subject - this is needed for
+        // schemas references in Topic name strategy to work
+        props.setProperty("use.latest.version","true");
         // Key serializer - String
         props.setProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         // Value serializer - KafkaAvroSerializer
@@ -75,8 +79,10 @@ public class DepositService implements Runnable {
         // ----------------------------- Produce aircraft location events to Kafka -----------------------------
         while (true) {
             try {
-                Deposit value = DepositEvent.getDeposit();
-                String key = ""+value.getAccountId();
+                Deposit deposit = DepositEvent.getDeposit();
+                BankAccount value = new BankAccount();
+                value.setOneofType(deposit);
+                String key = ""+deposit.getAccountId();
                 producer.send(new ProducerRecord<>(topicName, key, value), new Callback() {
                     @Override
                     public void onCompletion(RecordMetadata m, Exception e) {

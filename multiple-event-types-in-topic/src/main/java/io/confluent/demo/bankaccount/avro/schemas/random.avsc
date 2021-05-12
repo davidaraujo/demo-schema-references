@@ -1,10 +1,9 @@
 {
  "type": "record",
  "namespace": "io.confluent.demo.bankaccount.avro.pojo",
- "name": "Withdrawal",
+ "name": "Random",
  "fields": [
-     {"name": "account_id", "type": "long"},
-     {"name": "amount", "type": "double"},
-     {"name": "withdrawal_date", "type": "long", "logicalType": "date"}
+     {"name": "random_1", "type": "string"},
+     {"name": "random_2", "type": "string"}
  ]
 }

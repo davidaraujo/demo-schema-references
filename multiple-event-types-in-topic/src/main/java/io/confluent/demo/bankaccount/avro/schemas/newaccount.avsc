@@ -1,0 +1,12 @@
+{
+ "type": "record",
+ "namespace": "io.confluent.demo.bankaccount.avro.pojo",
+ "name": "NewAccount",
+ "fields": [
+     {"name": "account_id", "type": "long"},
+     {"name": "customer_name", "type": "string"},
+     {"name": "customer_email", "type": "string"},
+     {"name": "customer_address", "type": "string"},
+     {"name": "account_creation_date", "type": "long", "logicalType": "date"}
+ ]
+}

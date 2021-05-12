@@ -1,0 +1,15 @@
+{
+ "type": "record",
+ "namespace": "io.confluent.demo.bankaccount.avro.pojo",
+ "name": "BankAccount",
+ "fields": [
+   {
+     "name": "oneof_type",
+     "type": [
+       "io.confluent.demo.bankaccount.avro.pojo.NewAccount",
+       "io.confluent.demo.bankaccount.avro.pojo.Deposit",
+       "io.confluent.demo.bankaccount.avro.pojo.Withdrawal"
+    ]
+   }
+ ]
+ }

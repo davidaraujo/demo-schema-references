@@ -1,0 +1,10 @@
+{
+ "type": "record",
+ "namespace": "io.confluent.demo.bankaccount.avro.pojo",
+ "name": "Deposit",
+ "fields": [
+     {"name": "account_id", "type": "long"},
+     {"name": "amount", "type": "double"},
+     {"name": "deposit_date", "type": "long", "logicalType": "date"}
+ ]
+}

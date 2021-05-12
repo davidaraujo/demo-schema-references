@@ -16,8 +16,8 @@
 
 package io.confluent.demo.bankaccount.avro.producer;
 
-import io.confluent.demo.bankaccount.avro.pojo.Deposit;
-import io.confluent.demo.bankaccount.avro.pojo.Random;
+import io.confluent.demo.bankaccount.avro.pojo.BankAccount;
+import io.confluent.demo.bankaccount.avro.pojo.NewAccount;
 import io.confluent.demo.bankaccount.utils.ClientsUtils;
 import io.confluent.demo.bankaccount.utils.ColouredSystemOutPrintln;
 import io.confluent.demo.bankaccount.utils.PrettyPrint;
@@ -28,17 +28,17 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
-public class RandomService implements Runnable {
+public class NewAccountService implements Runnable {
 
     private final String resourcesDir;
     private final String confluentPropsFile;
     private final String topicName;
     private final String clientId;
 
-    public RandomService(String resourcesDir,
-                         String confluentPropsFile,
-                         String topicName,
-                         String clientId) {
+    public NewAccountService(String resourcesDir,
+                        String confluentPropsFile,
+                        String topicName,
+                        String clientId) {
         this.resourcesDir = resourcesDir;
         this.confluentPropsFile = confluentPropsFile;
         this.topicName = topicName;
@@ -56,8 +56,6 @@ public class RandomService implements Runnable {
         // Assign a client id to the producer
         if (clientId != null)
             props.put(ProducerConfig.CLIENT_ID_CONFIG, clientId);
-        // Set the subject naming strategy to use
-        props.setProperty("value.subject.name.strategy", RecordNameStrategy.class.getName());
         // If we auto register a schema with references it will expand the references
         // within the main schema and not use references. As a result the registering of
         // schema references should be performed via the SR API or SR maven plugin
@@ -70,19 +68,20 @@ public class RandomService implements Runnable {
         // Value serializer - KafkaAvroSerializer
         props.setProperty("value.serializer", "io.confluent.kafka.serializers.KafkaAvroSerializer");
 
+
         // ----------------------------- Create Kafka topic and producer -----------------------------
         // topic creation (if it doesn't exist)
         ClientsUtils.createTopic(props, topicName);
         // producer creation
         Producer<String, Object> producer = new KafkaProducer<>(props);
 
-        // ----------------------------- Produce aircraft location events to Kafka -----------------------------
+        // ----------------------------- Produce events to Kafka -----------------------------
         while (true) {
             try {
-                Random value = new Random();
-                value.setRandom1("r1");
-                value.setRandom2("r2");
-                String key = "";
+                NewAccount newAccount = NewAccountEvent.getNewAccount();
+                BankAccount value = new BankAccount();
+                value.setOneofType(newAccount);
+                String key = ""+newAccount.getAccountId();
                 producer.send(new ProducerRecord<>(topicName, key, value), new Callback() {
                     @Override
                     public void onCompletion(RecordMetadata m, Exception e) {
@@ -128,16 +127,16 @@ public class RandomService implements Runnable {
         // numberThreads is optional
         int numberThreads = ((numArgs == 5)) ? Integer.parseInt(args[4]) : 0;
 
-        RandomService depositService = null;
+        NewAccountService newAccountService = null;
         // run one producer thread
         if (numberThreads == 0) {
-            depositService = new RandomService(resourcesDir, confluentPropsFile, topicName, clientId);
-            new Thread(depositService).start();
+            newAccountService = new NewAccountService(resourcesDir, confluentPropsFile, topicName, clientId);
+            new Thread(newAccountService).start();
         }
         // run multiple producer threads
         else for (int i = 0; i < numberThreads; i++) {
-            depositService = new RandomService(resourcesDir, confluentPropsFile, topicName, clientId + "." + i);
-            new Thread(depositService).start();
+            newAccountService = new NewAccountService(resourcesDir, confluentPropsFile, topicName, clientId + "." + i);
+            new Thread(newAccountService).start();
         }
         try {
             Thread.sleep(10L * 1000L);

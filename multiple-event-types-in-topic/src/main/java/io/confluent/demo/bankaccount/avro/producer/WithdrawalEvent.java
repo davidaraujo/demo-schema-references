@@ -2,16 +2,16 @@ package io.confluent.demo.bankaccount.avro.producer;
 
 import com.github.javafaker.Faker;
 import io.confluent.demo.bankaccount.avro.pojo.Deposit;
-import io.confluent.demo.bankaccount.avro.pojo.NewAccount;
+import io.confluent.demo.bankaccount.avro.pojo.Withdrawal;
 
-public class DepositEvent {
+public class WithdrawalEvent {
 
-    public static Deposit getDeposit() {
+    public static Withdrawal getWithdrawal() {
         Faker faker = new Faker();
-        Deposit deposit = new Deposit();
-        deposit.setAccountId(faker.number().randomNumber());
-        deposit.setAmount(new Double(faker.commerce().price()));
-        deposit.setDepositDate(System.currentTimeMillis());
-        return deposit;
+        Withdrawal withdrawal = new Withdrawal();
+        withdrawal.setAccountId(faker.number().randomNumber());
+        withdrawal.setAmount(new Double(faker.commerce().price()));
+        withdrawal.setWithdrawalDate(System.currentTimeMillis());
+        return withdrawal;
     }
 }
