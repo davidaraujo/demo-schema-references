@@ -34,11 +34,20 @@
 
     <properties>
         <confluent.version>5.5.1</confluent.version>
-        <kafka.version>2.5.0</kafka.version>
+        <kafka.version>2.5.1</kafka.version>
+        <!-- david+robert
         <schema.registry.url>https://psrc-4rw99.us-central1.gcp.confluent.cloud</schema.registry.url>
         <schema.registry.basic.auth.user.info>
             EN4ZYG7DPIV4LHQ2:lfQwwxGux/rV3LI6qG3YyvyIpDr4rhj3GJljPQ9N//VuUfI+Vf/xugZPv1WXwaDr
         </schema.registry.basic.auth.user.info>
+        -->
+        <!-- david+pm dedicated cluster -->
+        <schema.registry.url>https://psrc-4xgzx.us-east-2.aws.confluent.cloud</schema.registry.url>
+        <schema.registry.basic.auth.user.info>
+            2XJBO6XGQQUCNZF5:Q6pDRIxlKcmKav4T+OpbGR5m1wZ/CA8WnrVg1myacUppYvolkdGYh2tGpdAwDoKZ
+        </schema.registry.basic.auth.user.info>
+
+
         <avro-maven-plugin>1.9.2</avro-maven-plugin>
         <protoc.jar.maven.plugin>3.11.1</protoc.jar.maven.plugin>
         <jsonschema2pojo-maven-plugin>1.0.2</jsonschema2pojo-maven-plugin>
@@ -185,14 +194,14 @@
                         <customer.newaccount>src/main/java/io/confluent/demo/bankaccount/avro/schemas/newaccount.avsc</customer.newaccount>
                         <customer.deposit>src/main/java/io/confluent/demo/bankaccount/avro/schemas/deposit.avsc</customer.deposit>
                         <customer.withdrawal>src/main/java/io/confluent/demo/bankaccount/avro/schemas/withdrawal.avsc</customer.withdrawal>
-                        <customer.random>src/main/java/io/confluent/demo/bankaccount/avro/schemas/random.avsc</customer.random>
+                        <io.confluent.demo.bankaccount.avro.pojo.Random>src/main/java/io/confluent/demo/bankaccount/avro/schemas/random.avsc</io.confluent.demo.bankaccount.avro.pojo.Random>
                     </subjects>
                     <schemaTypes>
                         <customer.bankaccount.avro-value>AVRO</customer.bankaccount.avro-value>
                         <customer.newaccount>AVRO</customer.newaccount>
                         <customer.deposit>AVRO</customer.deposit>
                         <customer.withdrawal>AVRO</customer.withdrawal>
-                        <customer.random>AVRO</customer.random>
+                        <io.confluent.demo.bankaccount.avro.pojo.Random>AVRO</io.confluent.demo.bankaccount.avro.pojo.Random>
                     </schemaTypes>
                     <references>
                         <customer.bankaccount.avro-value>

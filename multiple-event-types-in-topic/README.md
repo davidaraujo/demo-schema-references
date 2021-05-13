@@ -9,7 +9,7 @@ We'll work with events that describe the following operations:
 * Making a deposit 
 * Withdrawal of money 
 
-As a chain of events that belong together, we'll store them in the same Kafka topic.
+As a chain of events that belong together, we'll store them in the same Kafka topic on [Confluent Cloud](https://login.confluent.io/).
 
 ![Alt text](multiple_events_same_topic.png?raw=true "Title")
 
@@ -208,7 +208,7 @@ mvn exec:java -Dexec.mainClass="io.confluent.demo.bankaccount.avro.consumer.Gene
 ```
 
 ### Random application (producer) 
-The random producer application is configured to use `RecordNameStrategy` and if the topic is running on a dedicated cluster with `confluent.value.schema.validation=true` and `confluent.key.subject.name.strategy
+The random producer application is configured to use `RecordNameStrategy` and if the topic is running on a **Kafka dedicated cluster** with `confluent.value.schema.validation=true` and `confluent.key.subject.name.strategy
 =io.confluent.kafka.serializers.subject.TopicNameStrategy`, all the records produced will fail.
 
 ```bash
