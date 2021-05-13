@@ -10,7 +10,9 @@ Our order event is composed of:
 * Customer details
 * Payment details
 
-![Alt text](order.png?raw=true "Title")
+We'll store order events in a Kafka topic on [Confluent Cloud](https://login.confluent.io/).
+
+![Alt text](purchase-order.png?raw=true "Order")
 
 ## Setup and build
 
