@@ -1,1 +1,5 @@
-/multiple-event-types-in-topic/target/
+multiple-event-types-in-topic/target/
+one-event-type-in-topic/target/
+multiple-event-types-in-topic/src/main/resources/ccloud_prod_catalog.properties
+multiple-event-types-in-topic/src/main/resources/ccloud_prod_dedicated.properties
+
