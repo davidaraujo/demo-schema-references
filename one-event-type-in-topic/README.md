@@ -1,11 +1,101 @@
 
-Orders demo with Avro schema references
-================
+# One event type in the same topic with schema references 
 
+## Scenario
+An order composed of multiple parts represented with different data structures/schemas.
 
-Create Avro POJOs for a schema with references:
--------------
-pom.xml:
+Our order event is composed of:
+* Order details
+* One of more products 
+* Customer details
+* Payment details
+
+![Alt text](order.png?raw=true "Title")
+
+## Setup and build
+
+### Schemas
+
+#### Order schema (main)
+```json
+{
+  "type": "record",
+  "namespace": "io.confluent.demo.orders.avro.pojo",
+  "name": "Order",
+  "fields": [
+    {"name": "order_id", "type": "long", "doc": "The id of the order."},
+    {"name": "order_date", "type": "long", "logicalType": "date"},
+    {"name": "order_amount", "type": "double"},
+    {
+      "name": "products",
+      "type": {
+        "type": "array",
+        "items": {
+          "name": "product",
+          "type": "io.confluent.demo.orders.avro.pojo.Product"
+        }
+      }
+    },
+    {
+      "name": "customer",
+      "type": "io.confluent.demo.orders.avro.pojo.Customer"
+    },
+    {
+      "name": "payment_method",
+      "type": "io.confluent.demo.orders.avro.pojo.Payment"
+    }
+  ]
+}
+```
+
+#### Product schema (reference)
+```json
+{
+ "type": "record",
+ "namespace": "io.confluent.demo.orders.avro.pojo",
+ "name": "Product",
+
+ "fields": [
+     {"name": "product_id", "type": "long"},
+     {"name": "product_name", "type": "string"},
+     {"name": "product_price", "type": "double"}
+ ]
+}
+```
+
+#### Customer schema (reference)
+```json
+{
+ "type": "record",
+ "namespace": "io.confluent.demo.orders.avro.pojo",
+ "name": "Customer",
+
+ "fields": [
+     {"name": "customer_id", "type": "long"},
+     {"name": "customer_name", "type": "string"},
+     {"name": "customer_email", "type": "string"},
+     {"name": "customer_address", "type": "string"}
+ ]
+}
+```
+
+#### Payment schema (reference)
+```json
+{
+ "type": "record",
+ "namespace": "io.confluent.demo.orders.avro.pojo",
+ "name": "Payment",
+ "fields": [
+     {"name": "payment_method_code", "type": "int"},
+     {"name": "card_number", "type": "long"},
+     {"name": "expiration_date", "type": "string", "default": "00/00"},
+     {"name": "cvv", "type": "int"}
+ ]
+}
+```
+
+### Generate POJOs
+Avro plugin on the pom.xml:
 ```xml
 <plugin>
             <groupId>org.apache.avro</groupId>
@@ -30,14 +120,13 @@ pom.xml:
             </executions>
         </plugin>
 ```
-Run:
+Run to generate sources:
 ```
 mvn generate-sources
 ```
 
-Register a schema with references using the Schema Registry maven plugin:
--------------
-pom.xml:
+### Register schemas
+Confluent Schema registry plugin on the pom.xml:
 ```xml
 <plugin>
     <groupId>io.confluent</groupId>
@@ -81,7 +170,7 @@ pom.xml:
     </configuration>
 </plugin>
 ```
-Run:
+Run to register:
 ```
 mvn schema-registry:register
 ```
@@ -104,14 +193,26 @@ Output:
 
 ```
 
-Run apps with schema references
------
-Producer:
-```bash
-mvn exec:java -Dexec.mainClass="io.confluent.demo.orders.avro.producer.OrderService" -Dexec.args="./src/main/resources ccloud_prod_catalog.properties transaction.order.avro OrderService.avro"
+### Build
+Run to compile:
 ```
-Consumer:
-```bash
-mvn exec:java -Dexec.mainClass="io.confluent.demo.orders.avro.consumer.GenericAvroConsumerService" -Dexec.args="./src/main/resources ccloud_prod_catalog.properties transaction.order.avro FulfillmentService.avro"
+mvn compile
 ```
 
+## Run
+
+### Order service application (producer)
+```bash
+mvn exec:java -Dexec.mainClass="io.confluent.demo.orders.avro.producer.OrderService" -Dexec.args="./src/main/resources <CCLOUD_PROPERTIES> transaction.order.avro OrderService.avro"
+```
+
+### Fulfillment service application (consumer)
+```bash
+mvn exec:java -Dexec.mainClass="io.confluent.demo.orders.avro.consumer.GenericAvroConsumerService" -Dexec.args="./src/main/resources <CCLOUD_PROPERTIES> transaction.order.avro FulfillmentService.avro"
+```
+
+## Read more
+* [Schema References](https://docs.confluent.io/platform/current/schema-registry/serdes-develop/index.html#schema-references)
+
+## License
+This project is licensed under the [Apache 2.0 License](./LICENSE).
