@@ -35,16 +35,11 @@
     <properties>
         <confluent.version>5.5.1</confluent.version>
         <kafka.version>2.5.1</kafka.version>
-        <!-- david+robert
-        <schema.registry.url>https://psrc-4rw99.us-central1.gcp.confluent.cloud</schema.registry.url>
-        <schema.registry.basic.auth.user.info>
-            EN4ZYG7DPIV4LHQ2:lfQwwxGux/rV3LI6qG3YyvyIpDr4rhj3GJljPQ9N//VuUfI+Vf/xugZPv1WXwaDr
-        </schema.registry.basic.auth.user.info>
-        -->
+       
         <!-- david+pm dedicated cluster -->
-        <schema.registry.url>https://psrc-4xgzx.us-east-2.aws.confluent.cloud</schema.registry.url>
+        <schema.registry.url><SR ENDPOINT></schema.registry.url>
         <schema.registry.basic.auth.user.info>
-            2XJBO6XGQQUCNZF5:Q6pDRIxlKcmKav4T+OpbGR5m1wZ/CA8WnrVg1myacUppYvolkdGYh2tGpdAwDoKZ
+            <KEY>:<SECRET>
         </schema.registry.basic.auth.user.info>
 
 
